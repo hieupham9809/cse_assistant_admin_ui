@@ -1,0 +1,23 @@
+.box {
+	min-width: 100px;
+	max-width: 150px;
+	min-height: 60px;
+	background-color: grey;
+	margin: 1px;
+	border: 1px solid black;
+}
+
+.original {
+	min-width: 100px;
+	max-width: 150px;
+	min-height: 100px;
+	background-color: grey;
+	margin: 1px;
+	border: 1px solid black;
+}
+
+.draggable {
+	max-width: 100px;
+	margin: 1px;
+	border: 1px solid black;
+}
