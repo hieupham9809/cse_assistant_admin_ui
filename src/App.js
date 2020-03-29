@@ -1,10 +1,12 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import AppDragDropDemo from './AppDragDropDemo' 
+
 import AddNewActivity from './form_add_new_activity/AddNewActivity.js'
+import DraggingForm from './dragging_form_add_new_activity/DraggingForm.js'
 function App() {
   return (
+    // <DraggingFo/rm/>
     <AddNewActivity/>
     // <AppDragDropDemo/>
     // <div className="App">

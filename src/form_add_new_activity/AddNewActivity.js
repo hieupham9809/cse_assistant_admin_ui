@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import './AddNewActivity.css';
 import validate from './validator.js';
-import { Button } from 'react-bootstrap';
+import { Button, Modal, Alert } from 'react-bootstrap';
 import { Form, Row, Col } from 'react-bootstrap'
+import { INSERT_API } from '../dragging_form_add_new_activity/constants';
+
 import TextInput from './TextInput';
 import TextArea from './TextArea';
 import { IconContext } from "react-icons";
 import {FaPlusCircle} from "react-icons/fa";
 import {FaMinusCircle} from "react-icons/fa";
+import axios from 'axios';
 
 class FormComponent extends Component {
   
@@ -119,7 +122,7 @@ class FormComponent extends Component {
                 },
                 placeholder: 'sinh viên khoa KH&KT Máy tính ĐH Bách Khoa, số lượng tham gia tối đa 200 sinh viên, ...'
               },
-              time_general: {
+              time: {
                 value: '',
                 valid: true,
                 touched: false,
@@ -128,7 +131,7 @@ class FormComponent extends Component {
                 },
                 placeholder: '08h30 sáng 26/03/2020, ...'
               },
-              name_place_general: {
+              name_place: {
                 value: '',
                 valid: true,
                 touched: false,
@@ -137,7 +140,7 @@ class FormComponent extends Component {
                 },
                 placeholder: 'nhà thi đấu đa năng ĐH Bách Khoa, Hội trường A5 cơ sở Lý Thường Kiệt, ...'
               },
-              address_general: {
+              address: {
                 value: '',
                 valid: true,
                 touched: false,
@@ -145,13 +148,25 @@ class FormComponent extends Component {
                     maxLength: 200
                 },
                 placeholder: '268 Lý Thường Kiệt, ...'
+              },
+              works: {
+                value: '',
+                valid: true,
+                touched: false,
+                validationRules: {
+                    maxLength: 300
+                },
+                placeholder: 'dọn dẹp nghĩa trang, ...'
               }
 	      	},
           associateControls: {
             associateValues : [
               this.mapCopy(this.associateInit)
             ]
-          }
+          },
+          isShowConfirmDialog: false,
+          isShowSuccessBadge: false,
+          isShowErrorBadge: false
 	    } 
 	}
   mapCopy = (object) => {
@@ -258,7 +273,13 @@ class FormComponent extends Component {
 
   	}
 
-
+    showConfirmDialog = (isShow)=> {
+      if (isShow){
+        this.setState({isShowConfirmDialog: true})
+      } else {
+        this.setState({isShowConfirmDialog: false})
+      }
+    }
   	formSubmitHandler = () => {
     	console.log(this.state.associateControls)
       const formGeneralControls = {
@@ -281,6 +302,26 @@ class FormComponent extends Component {
       }
       body_request_object.activity["time_work_place_mapping"] = listAssociateValues;
       console.log(body_request_object);
+      axios.post(INSERT_API,
+        body_request_object).then((res)=>{
+            
+            this.setState({
+              isShowConfirmDialog: false,
+              isShowSuccessBadge: true,
+              isShowErrorBadge: false
+            })
+          },
+            (error)=>{
+              
+              this.setState({
+                isShowConfirmDialog: false,
+                isShowSuccessBadge: false,
+                isShowErrorBadge: true
+              })
+
+            }
+          );
+
   	}
     convertRawValueToArray = (rawValue)=> {
       var trimmedValue = rawValue.trim();
@@ -320,6 +361,7 @@ class FormComponent extends Component {
 	render = () => {
         var changeAssociateValue = this.changeAssociateValue;
         var deleteRowHandle = this.deleteRowHandle;
+        var newLocal = this;
       	return (
 	        <Form>
             <h6><i>* Lưu ý nếu có nhiều giá trị thì nhập các giá trị cách nhau bởi dấu phẩy</i></h6>
@@ -361,32 +403,42 @@ class FormComponent extends Component {
               </Row>
               <Form.Group className="form-group-custom">
                   <Form.Label><b>Thời gian</b></Form.Label>
-                  <TextArea name="time_general" 
-                             placeholder={this.state.formGeneralControls.time_general.placeholder}
-                             value={this.state.formGeneralControls.time_general.value}
+                  <TextArea name="time" 
+                             placeholder={this.state.formGeneralControls.time.placeholder}
+                             value={this.state.formGeneralControls.time.value}
                              onChange={this.changeHandler}
-                             touched={this.state.formGeneralControls.time_general.touched ? 1 : 0}
-                             valid={this.state.formGeneralControls.time_general.valid ? 1 : 0}/>
+                             touched={this.state.formGeneralControls.time.touched ? 1 : 0}
+                             valid={this.state.formGeneralControls.time.valid ? 1 : 0}/>
           
               </Form.Group>
               <Form.Group className="form-group-custom">
                   <Form.Label><b>Tên địa điểm</b></Form.Label>
-                  <TextArea name="name_place_general" 
-                             placeholder={this.state.formGeneralControls.name_place_general.placeholder}
-                             value={this.state.formGeneralControls.name_place_general.value}
+                  <TextArea name="name_place" 
+                             placeholder={this.state.formGeneralControls.name_place.placeholder}
+                             value={this.state.formGeneralControls.name_place.value}
                              onChange={this.changeHandler}
-                             touched={this.state.formGeneralControls.name_place_general.touched ? 1 : 0}
-                             valid={this.state.formGeneralControls.name_place_general.valid ? 1 : 0}/>
+                             touched={this.state.formGeneralControls.name_place.touched ? 1 : 0}
+                             valid={this.state.formGeneralControls.name_place.valid ? 1 : 0}/>
           
               </Form.Group>
               <Form.Group className="form-group-custom">
                   <Form.Label><b>Địa chỉ</b></Form.Label>
-                  <TextArea name="address_general" 
-                             placeholder={this.state.formGeneralControls.address_general.placeholder}
-                             value={this.state.formGeneralControls.address_general.value}
+                  <TextArea name="address" 
+                             placeholder={this.state.formGeneralControls.address.placeholder}
+                             value={this.state.formGeneralControls.address.value}
                              onChange={this.changeHandler}
-                             touched={this.state.formGeneralControls.address_general.touched ? 1 : 0}
-                             valid={this.state.formGeneralControls.address_general.valid ? 1 : 0}/>
+                             touched={this.state.formGeneralControls.address.touched ? 1 : 0}
+                             valid={this.state.formGeneralControls.address.valid ? 1 : 0}/>
+          
+              </Form.Group>
+              <Form.Group className="form-group-custom">
+                  <Form.Label><b>Công việc</b></Form.Label>
+                  <TextArea name="works" 
+                             placeholder={this.state.formGeneralControls.works.placeholder}
+                             value={this.state.formGeneralControls.works.value}
+                             onChange={this.changeHandler}
+                             touched={this.state.formGeneralControls.works.touched ? 1 : 0}
+                             valid={this.state.formGeneralControls.works.valid ? 1 : 0}/>
           
               </Form.Group>
               <Form.Group className="form-group-custom">
@@ -508,13 +560,34 @@ class FormComponent extends Component {
                   })
                 }
                 
-                <IconContext.Provider value={{ className: "add-more-icon" }}>
+                <IconContext.Provider value={{ className: "add-more-icon-form" }}>
                   <FaPlusCircle onClick={this.addMoreRowHandle}/>
                 </IconContext.Provider>
               </Form.Group>
-                <Button onClick={this.formSubmitHandler}
+                <Button onClick={()=>newLocal.showConfirmDialog(true)}
                         disabled={!this.state.formIsValid}
+                        className="submit-btn"
                 > Thêm hoạt động </Button>
+                {this.state.isShowSuccessBadge && <Alert className="alert-badge" variant='success'>
+                  Thêm thành công!
+                </Alert>}
+                {this.state.isShowErrorBadge && <Alert className="alert-badge" variant='danger'>
+                  Có lỗi xảy ra!
+                </Alert>}
+                <Modal show={this.state.isShowConfirmDialog} onHide={()=>newLocal.showConfirmDialog(false)}>
+                  <Modal.Header closeButton>
+                    <Modal.Title>Xác nhận thêm hoạt động</Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body>Bạn có chắc tạo mới hoạt động này?</Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="secondary" onClick={()=>newLocal.showConfirmDialog(false)}>
+                      Hủy
+                    </Button>
+                    <Button variant="primary" onClick={this.formSubmitHandler}>
+                      Tạo mới
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
             </Form>   
       	);
   	}
