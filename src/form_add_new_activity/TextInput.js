@@ -4,7 +4,7 @@ const TextInput = props => {
 
     let formControl = "form-control";
 	
-    if (props.touched && !props.valid) {
+    if (!props.valid) {
         formControl = 'form-control control-error';
     }
 
