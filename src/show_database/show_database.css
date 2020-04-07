@@ -1,10 +1,16 @@
 .main-container {
 	width: 100%;
 	height: 100%;
+	margin: 15px;
+	padding: 0px;
 }
 td {
 	max-height: 200px;
 	padding: 5px !important;
+	/*word-break: break-all;*/
+}
+.id-td{
+	width: 20px;
 }
 th {
 	font-size: 15px;
@@ -13,11 +19,43 @@ th {
 }
 .table-content {
 	font-size: 12px;
+	border-collapse:collapse;
+    table-layout:fixed;
 }
 .td-wrap-text{
 	max-height: 100px;
 	max-width: 130px;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	white-space: nowrap;
+	
+}
+.search-pagination{
+	display: flex;
+	align-items: center;
+}
+.search-box{
+	display: flex;
+	align-items: center;
+	margin-right: 0px;
+	
+	border-radius: 5px;
+	border: 1px solid #e6d9d9;
+}
+.input-search-box{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 14px !important;
+	padding: 5px 2px 5px 0px;
+}
+.form-control {
+	font-size: 14px !important;
+	margin: 0px;
+}
+.search-icon{
+	width: 30px;
+	height: 30px;
+	margin-right: 1px;
+	border-radius: 5px;
+	background-color: #d1deea;
 }

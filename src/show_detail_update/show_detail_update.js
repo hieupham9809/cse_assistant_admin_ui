@@ -184,7 +184,7 @@ class DetailActivity extends Component {
       }, {})
   }
   componentDidMount(){
-  	var activity_id = "5e8328292884bef0da973d1c";
+  	var activity_id = this.props.activity_id;
   	axios.get(GET_SINGLE_API + activity_id).then((res)=>{
 
 		            var data = res.data.message;
@@ -548,7 +548,7 @@ class DetailActivity extends Component {
         	return <h6>Không tìm thấy hoạt động</h6>;
         }
       	return (
-	        <Form>
+	        <Form className="main-detail-display">
             <h6><i>* Lưu ý nếu có nhiều giá trị thì nhập các giá trị cách nhau bởi dấu phẩy</i></h6>
             <h6><b>I. Thông tin chung của hoạt động</b> <i>(mỗi trường thông tin không quá 500 ký tự)</i></h6>
 
@@ -817,7 +817,7 @@ class DetailActivity extends Component {
                     </Button>
                   </Modal.Footer>
                 </Modal>
-                <Modal show={this.state.isshowConfirmUpdateDialog} onHide={()=>newLocal.showConfirmUpdateDialog(false)}>
+                <Modal show={this.state.isShowConfirmUpdateDialog} onHide={()=>newLocal.showConfirmUpdateDialog(false)}>
                   <Modal.Header closeButton>
                     <Modal.Title>Xác nhận cập nhật hoạt động</Modal.Title>
                   </Modal.Header>
