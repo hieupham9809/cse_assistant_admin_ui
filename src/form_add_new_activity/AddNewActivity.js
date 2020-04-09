@@ -172,7 +172,7 @@ class FormComponent extends Component {
   mapCopy = (object) => {
     return Object.keys(object).reduce(function (output, key) {
       output[key] = object[key];
-      console.log(output);
+      
       return output;
       }, {})
   }
@@ -455,7 +455,7 @@ class FormComponent extends Component {
         var isDisableForm = this.isDisableForm();
 
       	return (
-	        <Form>
+	        <Form className="main-detail-display">
             <h6><i>* Lưu ý nếu có nhiều giá trị thì nhập các giá trị cách nhau bởi dấu phẩy</i></h6>
             <h6><b>I. Thông tin chung của hoạt động</b> <i>(mỗi trường thông tin không quá 500 ký tự)</i></h6>
 

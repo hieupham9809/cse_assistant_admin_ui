@@ -15,11 +15,20 @@ import {Nav, Navbar, NavDropdown} from 'react-bootstrap'
 class App extends Component{
     constructor(){
         super();
-        this.currentPage = 1;
+        this.data = {
+                    current_page: 1,
+                    is_searching: false,
+                    current_search_condition: null
+                };
         this.state = {
             show_database : {
                 is_show : true,
-                currentPage: 0
+                data: {
+                    currentPage: 1,
+                    currentSearchPage:1,
+                    currentSearchCondition: null
+                }
+                
 
             },
             show_detail : {
@@ -43,7 +52,17 @@ class App extends Component{
             ...displayComponent,
         })
     }
+    reset_save_data = () => {
+        this.data = {
+                    current_page: 1,
+                    is_searching: false,
+                    current_search_condition: null
+                };
+    }
     handleReturnDatabase = () => {
+        if (this.data.is_searching && this.state.show_database.is_show){
+            this.reset_save_data();
+        }
         this.setState(this.showComponent("show_database"));
 
     }
@@ -58,10 +77,11 @@ class App extends Component{
         for (let show in showComponent){
             showComponent[show].is_show = (show === component);
         }
-        console.log(showComponent);
+        
         return showComponent;
     }
     render = () => {
+        
         return (
 
         <div>
@@ -80,21 +100,21 @@ class App extends Component{
                     </Nav>
                     <Nav>
                         <Nav.Link >
-                            {!this.state.show_database.is_show && <IconContext.Provider value={{ className: "back-icon" }}>
+                            <IconContext.Provider value={{ className: "back-icon" }}>
                               
                                 <TiArrowBack onClick={() => this.handleReturnDatabase()}/>
                               
-                            </IconContext.Provider>}
+                            </IconContext.Provider>
                         </Nav.Link>
 
                         
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>
-            
+
             {this.state.show_database.is_show && <ShowDatabase 
-                onClickToSelectPage={(page)=>{this.currentPage = page}}
-                pageToLoad={this.currentPage}
+                notifyCurrentPageAndCondition={(data)=>{this.data = data; }}
+                data={this.data}
                 onClickInActivity={this.handleClickInActivity}/>}
             {this.state.show_detail.is_show 
                 && this.state.show_detail.activity_id.length > 0 

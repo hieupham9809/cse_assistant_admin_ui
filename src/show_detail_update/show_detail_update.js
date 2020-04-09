@@ -58,8 +58,8 @@ class DetailActivity extends Component {
                 }
               }
 		this.state = {
-			currentId: null,
-          	formIsValid : false,    
+		      currentId: null,
+        	formIsValid : false,    
 	      	formGeneralControls: {
 	          	name_activity: {
 		            value: '',
@@ -168,6 +168,7 @@ class DetailActivity extends Component {
               this.mapCopy(this.associateInit)
             ]
           },
+          isNotFound: false,
           isShowConfirmUpdateDialog: false,
           isShowSuccessUpdateDialog: false,
           isShowErrorUpdateDialog: false,
@@ -185,6 +186,8 @@ class DetailActivity extends Component {
   }
   componentDidMount(){
   	var activity_id = this.props.activity_id;
+    
+
   	axios.get(GET_SINGLE_API + activity_id).then((res)=>{
 
 		            var data = res.data.message;
@@ -291,10 +294,12 @@ class DetailActivity extends Component {
 			        }
 		          },
 		            (error)=>{
-		              
-		              console.log('error: ' + error.message);
-		              // this.setState({isError: true});
 
+                  if (error.response){
+                    console.log(typeof(error.response.status))
+                    this.setState({isNotFound : (error.response.status == 404 || error.response.status == 400)});
+                  }
+		 
 		            }
 		          );
   }
@@ -544,7 +549,7 @@ class DetailActivity extends Component {
         var deleteRowHandle = this.deleteRowHandle;
         var newLocal = this;
         var isDisableForm = this.isDisableForm();
-        if (this.state.currentId == null){
+        if (this.state.isNotFound){
         	return <h6>Không tìm thấy hoạt động</h6>;
         }
       	return (

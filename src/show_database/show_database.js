@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import './show_database.css';
 import { Table, Button, Container, Pagination } from 'react-bootstrap';
-import { Form, Row, Col } from 'react-bootstrap'
-import {IoMdSearch} from "react-icons/io";
+import { Form, Row, Col, Spinner } from 'react-bootstrap'
+import {IoMdSearch,IoIosBackspace} from "react-icons/io";
 import { IconContext } from "react-icons";
 
 import { GET_DB_API, GET_DB_FILTER } from '../dragging_form_add_new_activity/constants';
@@ -16,63 +16,135 @@ class ShowDatabase extends Component {
 			activities: null,
 			total: 0,
 			per_page: 20,
-			current_page: props.pageToLoad,
-			current_search_codition: [
+			is_loading: true,
+			is_searching: props.data.is_searching,
+			current_page: props.data.current_page,
+			current_search_condition: props.data.is_searching ? props.data.current_search_condition : [
 				{
-					category : "",
+					category : "name_activity",
+					keyword: ""
+				},
+				{
+					category : "none",
 					keyword: ""
 				}
 			],
-			current_search_page: 1,
+			// current_search_page: props.data.currentSearchPage,
 			is_not_found: false,
-			isError: false
+			is_error: false
 		}
 	
 
 
 	}
+	resetState = () => {
+		this.setState({
+			activities: null,
+			total: 0,
+			per_page: 20,
+			is_searching: false,
+			current_page: 1,
+			current_search_condition:[
+				{
+					category : "name_activity",
+					keyword: ""
+				},
+				{
+					category : "none",
+					keyword: ""
+				}
+			],
+		
+			is_not_found: false,
+			is_error: false
+		})
+	}
+	resetSearchBox = () => {
+		this.setState({
+			
+			current_search_condition:[
+				{
+					category : "",
+					keyword: ""
+				},
+				{
+					category : "",
+					keyword: ""
+				}
+			]
+		})
+	}
 	handleClickActivity = (event, id)=>{
 		this.props.onClickInActivity(event, id);
 	}
+	componentWillReceiveProps(nextProps) {
+
+	  if (nextProps.data.is_searching){
+			
+		
+			this.makeHttpFilterRequestWithPage(nextProps.data.current_page, this.createCondition())
+
+		} else {
+			// this.resetState();
+		    this.makeHttpRequestWithPage(nextProps.data.current_page);
+
+		}
+	}
 	handleChangeSearchCategory = (event, idx) => {
-		console.log(idx)
-		console.log(event.target.value)
-		if (idx >= 0 && idx < this.state.current_search_codition.length){
-			const currentCondition = this.state.current_search_codition;
+
+		if (idx >= 0 && idx < this.state.current_search_condition.length){
+			const currentCondition = this.state.current_search_condition;
 			currentCondition[idx].category = event.target.value;
 			this.setState({
-				current_search_codition : currentCondition
+				current_search_condition : currentCondition
 			})
 
 		}
 	}
 	handleChangeSearchKeyword = (event, idx) => {
-		if (idx >= 0 && idx < this.state.current_search_codition.length){
-			const currentCondition = this.state.current_search_codition;
+		if (idx >= 0 && idx < this.state.current_search_condition.length){
+			const currentCondition = this.state.current_search_condition;
 			currentCondition[idx].keyword = event.target.value;
 			this.setState({
-				current_search_codition : currentCondition
+				current_search_condition : currentCondition
 			})
 
 		}
 	}
 	handleClickToPage = (page) => {
-		this.props.onClickToSelectPage(page);
+		if (this.state.is_searching){
+			this.makeHttpFilterRequestWithPage(page, this.createCondition());
+
+			return;
+		}
+
 		this.makeHttpRequestWithPage(page);
 	}
+
 	handleSearchRequest = () => {
+		var condition = this.createCondition();
+		
+		this.makeHttpFilterRequestWithPage(1, condition);
+	}
+	notifyToParent = (page, isSearching, condition) => {
+		this.props.notifyCurrentPageAndCondition({
+			current_page: page,
+			is_searching: isSearching,
+			current_search_condition: condition
+
+		});
+
+	}
+	createCondition = () => {
 		var condition = {}
-		var currentSearchConditionList = this.state.current_search_codition;
+		var currentSearchConditionList = this.state.current_search_condition;
 		for (let idx in currentSearchConditionList){
 			if (currentSearchConditionList[idx].category !== "none"){
 				condition[currentSearchConditionList[idx].category] 
 					= this.convertRawValueToArray(currentSearchConditionList[idx].keyword)
 			}
 		}
-		
-		console.log('request object: ');
-		console.log(condition);
-		this.makeHttpFilterRequestWithPage(this.state.current_search_page, condition);
+		return condition;
 	}
 	convertRawValueToArray = (rawValue)=> {
       var trimmedValue = rawValue.trim();
@@ -83,55 +155,75 @@ class ShowDatabase extends Component {
 
     }
 	componentDidMount() {
-	    this.makeHttpRequestWithPage(this.state.current_page);
+
+		if (this.state.is_searching){
+
+			this.makeHttpFilterRequestWithPage(this.state.current_page, this.createCondition())
+
+		} else {
+
+		    this.makeHttpRequestWithPage(this.state.current_page);
+			
+		}
   	}
   	makeHttpFilterRequestWithPage = (pageNumber, condition) => {
-		// var condition = {}
-		// condition[]
+	    this.setState({is_loading: true});
+		
 		axios.post(GET_DB_FILTER + pageNumber, {
 			"condition" : condition
 			}).then((res)=>{
-		            
-		            // console.log('data: ');
-		            // console.log(res.data);
+
+					this.notifyToParent(res.data.current_page, true, this.state.current_search_condition);
 		            
 		            this.setState({
 				      activities: res.data.activities,
 				      total: res.data.total,
 				      per_page: res.data.per_page,
 				      current_page: res.data.current_page,
-				      current_search_page: res.data.current_page
+				      is_searching: true,
+				      is_loading: false
+
 
 				    });
 		          },
 		            (error)=>{
 		              
-		              console.log('error: ' + error.message);
-		              this.setState({isError: true});
+		              	if (error.response && error.response.status == 404){
+ 							this.setState({is_not_found: true})
+ 						} else {
+		              		this.setState({is_error: true});
+ 						}
+
 
 		            }
 		          );
 		
   	}
   	makeHttpRequestWithPage = pageNumber => {
-	    
+	    this.setState({is_loading: true});
 
 		axios.get(GET_DB_API + pageNumber).then((res)=>{
 		            
-		            // console.log('data: ');
-		            // console.log(res.data);
+					this.notifyToParent(res.data.current_page, false, this.state.current_search_condition);
+
 		            this.setState({
 				      activities: res.data.activities,
 				      total: res.data.total,
 				      per_page: res.data.per_page,
-				      current_page: res.data.current_page
+				      current_page: res.data.current_page,
+				      is_loading: false
+
 
 				    });
 		          },
 		            (error)=>{
 		              
-		              console.log('error: ' + error.message);
-		              this.setState({isError: true});
+		              
+ 						if (error.response && error.response.status == 404){
+ 							this.setState({is_not_found: true})
+ 						} else {
+		              		this.setState({is_error: true});
+ 						}
 
 		            }
 		          );
@@ -141,8 +233,11 @@ class ShowDatabase extends Component {
 	  }
 	render = ()=>{
 		let activities;
-		if (this.state.isError){
+		if (this.state.is_error){
 			return (<h6>Có lỗi xảy ra, vui lòng thử lại sau</h6>)
+		}
+		if (this.state.is_not_found){
+			return (<h6>Không tìm thấy hoạt động nào thỏa mãn</h6>)
 		}
 		if (this.state.activities !== null){
 			activities = this.state.activities.map(activity=>(
@@ -163,7 +258,7 @@ class ShowDatabase extends Component {
 				</tr>
 
 				))
-		}
+		} 
 		let numPages = Math.ceil(this.state.total / this.state.per_page)
 		let pages = []
 		let currentPage = this.state.current_page;
@@ -174,7 +269,7 @@ class ShowDatabase extends Component {
 		}
 		for (let i = 0; i < numPages; i++){
 			let num = i + 1;
-			if (num == 1 || num == numPages || (num >= currentPage - 2 && num <= currentPage + 2)){
+			if (num == 1 || num == numPages || (num >= currentPage - 1 && num <= currentPage + 1)){
 				if (num == numPages && currentPage < numPages - 2){
 					pages.push(<Pagination.Ellipsis key={-1}/>)
 				}
@@ -194,35 +289,80 @@ class ShowDatabase extends Component {
 
 		return (
 			<Container className="main-container">
+
 				<Row className="search-pagination">
 					<Col xs={6} md={5}>
-						<Pagination>{pages}</Pagination>
+						<Pagination className="pagination">{pages}</Pagination>
+						<div className="spinner-holder">{(this.state.is_loading) && <Spinner className="loading-spinner" animation="grow" variant="success" role="status"/>}</div>
+
 					</Col>
 					<Col xs={12} md={7}>
 						<Form.Group as={Row} className="search-box">
-						    <Form.Label className="input-search-box" column sm="auto">Tìm theo: </Form.Label>
-						    <Col className="input-search-box" sm="3">
-							    <Form.Control as="select" onChange={(event)=>{this.handleChangeSearchCategory(event, 0)}}>
-							      <option value="none">Chọn</option>
-							      <option value="name_activity">Tên hoạt động</option>
-							      <option value="type_activity">Loại hoạt động</option>
-							      
-							    </Form.Control>
+						    <Form.Label className="input-search-box" column sm="auto"><b>Tìm theo:</b></Form.Label>
+						    <Col sm="10">
+						    	<Row>
+								    <Col className="input-search-box" sm="4">
+									    <Form.Control 
+									    	as="select" 
+									    	value={this.state.current_search_condition[0].category}
+									    	onChange={(event)=>{this.handleChangeSearchCategory(event, 0)}}>
+									      <option value="none">Chọn</option>
+									      <option value="name_activity">Tên hoạt động</option>
+									      <option value="address">Địa điểm</option>
+									      
+									      
+									    </Form.Control>
+								    </Col>
+								    <Col className="input-search-box" sm="8">
+								    	<Form.Control 
+								    		type="textarea" 
+								    		placeholder="mùa hè xanh 2019" 
+								    		column sm="3"
+								    		value={this.state.current_search_condition[0].keyword}
+								    		onChange={(event)=>{this.handleChangeSearchKeyword(event, 0)}}/>
+								    </Col>
+							    </Row>
+							    <Row>
+								    <Col className="input-search-box" sm="4">
+									    <Form.Control 
+									    	as="select" 
+									    	value={this.state.current_search_condition[1].category}
+									    	onChange={(event)=>{this.handleChangeSearchCategory(event, 1)}}>
+									      <option value="none">Chọn</option>
+									      <option value="name_activity">Tên hoạt động</option>
+									      <option value="address">Địa điểm</option>
+									      
+									    </Form.Control>
+								    </Col>
+								    <Col className="input-search-box" sm="8">
+								    	<Form.Control 
+								    		type="textarea" 
+								    		placeholder="Vĩnh Hòa, Chợ Lách, Bến Tre" 
+								    		column sm="3"
+								    		value={this.state.current_search_condition[1].keyword}
+								    		onChange={(event)=>{this.handleChangeSearchKeyword(event, 1)}}/>
+							    	</Col>
+						    	</Row>
 						    </Col>
-						    <Col className="input-search-box" sm="7">
-						    	<Form.Control 
-						    		type="textarea" 
-						    		placeholder="mùa hè xanh 2019" 
-						    		column sm="3"
-						    		onChange={(event)=>{this.handleChangeSearchKeyword(event, 0)}}/>
+						    
+						    <Col  sm="auto">
+						    	<Row>
+								    <IconContext.Provider value={{ className: "search-icon" }} >
+		                              
+		                                <IoMdSearch onClick={() => this.handleSearchRequest()}/>
+		                              
+		                            </IconContext.Provider>
+	                            </Row>
+	                            <Row>
+		                            <IconContext.Provider  value={{ className: "search-icon" }} >
+		                              
+		                                <IoIosBackspace onClick={() => this.resetSearchBox()}/>
+		                              
+		                            </IconContext.Provider>
+	                            </Row>
+	                            
 						    </Col>
-						    <Col className="input-search-box" sm="auto">
-							    <IconContext.Provider value={{ className: "search-icon" }} >
-	                              
-	                                <IoMdSearch onClick={() => this.handleSearchRequest()}/>
-	                              
-	                            </IconContext.Provider>
-						    </Col>
+						    
 					  	</Form.Group>
 					</Col>
 					
@@ -246,6 +386,7 @@ class ShowDatabase extends Component {
 
 					</thead>
 					<tbody>
+
 						{activities}
 					</tbody>
 					

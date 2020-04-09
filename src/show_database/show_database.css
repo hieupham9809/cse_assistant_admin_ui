@@ -45,7 +45,7 @@ th {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	font-size: 14px !important;
+	font-size: 13px !important;
 	padding: 5px 2px 5px 0px;
 }
 .form-control {
@@ -53,9 +53,26 @@ th {
 	margin: 0px;
 }
 .search-icon{
+	display: inline-block;
 	width: 30px;
 	height: 30px;
 	margin-right: 1px;
+	margin-top: 5px;
+	margin-bottom: 5px;
 	border-radius: 5px;
 	background-color: #d1deea;
+	box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.19);
+
+}
+
+.loading-spinner{ 
+	
+}
+.spinner-holder{
+	position: absolute;
+	width: 30px;
+	height: 30px;
+}
+.pagination{
+	margin-bottom: 5px;
 }
