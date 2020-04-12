@@ -12,6 +12,8 @@ import TextArea from '../form_add_new_activity/TextArea';
 import { IconContext } from "react-icons";
 import {FaPlusCircle} from "react-icons/fa";
 import {FaMinusCircle} from "react-icons/fa";
+import {getToken} from '../utils/utils.js'
+
 import axios from 'axios';
 
 
@@ -188,7 +190,12 @@ class DetailActivity extends Component {
   	var activity_id = this.props.activity_id;
     
 
-  	axios.get(GET_SINGLE_API + activity_id).then((res)=>{
+  	axios.get(GET_SINGLE_API + activity_id, {
+      headers:
+            {
+              "Authorization": "JWT " + getToken()
+            }
+    }).then((res)=>{
 
 		            var data = res.data.message;
 					if (data !== 'activity not found'){
@@ -296,7 +303,7 @@ class DetailActivity extends Component {
 		            (error)=>{
 
                   if (error.response){
-                    console.log(typeof(error.response.status))
+                    
                     this.setState({isNotFound : (error.response.status == 404 || error.response.status == 400)});
                   }
 		 
@@ -443,7 +450,13 @@ class DetailActivity extends Component {
     deleteHandle = () => {
     	var currentId = this.state.currentId;
     	if (currentId != null && currentId.length > 0){
-			axios.delete(DELETE_SINGLE_API + currentId).then((res)=>{
+			axios.delete(DELETE_SINGLE_API + currentId,
+        {
+          headers:
+            {
+              "Authorization": "JWT " + getToken()
+            }
+        }).then((res)=>{
 				this.setState({
 					isShowConfirmDeleteDialog: false,
 					isShowErrorDeleteDialog: false,
@@ -489,7 +502,13 @@ class DetailActivity extends Component {
       body_request_object.activity["time_works_place_address_mapping"] = listAssociateValues;
       
       axios.put(UPDATE_API,
-        body_request_object).then((res)=>{
+        body_request_object,
+        {
+          headers:
+            {
+              "Authorization": "JWT " + getToken()
+            }
+        }).then((res)=>{
             
             this.setState({
               isShowConfirmUpdateDialog: false,
@@ -580,6 +599,7 @@ class DetailActivity extends Component {
                     <Form.Text>Phân loại hoạt động giúp dễ dàng tìm kiếm hoạt động hơn </Form.Text>
                   </Form.Group>
                 </Col>
+
                 <Col className="column2" sm="8">
                   <Form.Group className="form-group-custom">
                     <Form.Label><b>Ban tổ chức</b></Form.Label>

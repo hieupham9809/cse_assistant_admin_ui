@@ -4,6 +4,7 @@ import validate from './validator.js';
 import { Button, Modal, Alert } from 'react-bootstrap';
 import { Form, Row, Col } from 'react-bootstrap'
 import { INSERT_API } from '../dragging_form_add_new_activity/constants';
+import {getToken} from '../utils/utils.js'
 
 import TextInput from './TextInput';
 import TextArea from './TextArea';
@@ -386,6 +387,7 @@ class FormComponent extends Component {
         activity: {
           
         }
+        
       }
 
       for (let field in formGeneralControls){
@@ -394,7 +396,13 @@ class FormComponent extends Component {
       body_request_object.activity["time_works_place_address_mapping"] = listAssociateValues;
       console.log(body_request_object);
       axios.post(INSERT_API,
-        body_request_object).then((res)=>{
+        body_request_object,
+        {
+          headers:
+                {
+                  "Authorization": "JWT " + getToken()
+                }
+        }).then((res)=>{
             console.log('id: ' + res.data.id);
             this.setState({
               isShowConfirmDialog: false,

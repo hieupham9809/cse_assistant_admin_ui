@@ -4,6 +4,8 @@ import { Table, Button, Container, Pagination } from 'react-bootstrap';
 import { Form, Row, Col, Spinner } from 'react-bootstrap'
 import {IoMdSearch,IoIosBackspace} from "react-icons/io";
 import { IconContext } from "react-icons";
+import {getToken} from '../utils/utils.js'
+import { Redirect } from 'react-router-dom';
 
 import { GET_DB_API, GET_DB_FILTER } from '../dragging_form_add_new_activity/constants';
 
@@ -54,7 +56,7 @@ class ShowDatabase extends Component {
 					keyword: ""
 				}
 			],
-		
+			is_loading: false,
 			is_not_found: false,
 			is_error: false
 		})
@@ -78,7 +80,7 @@ class ShowDatabase extends Component {
 		this.props.onClickInActivity(event, id);
 	}
 	componentWillReceiveProps(nextProps) {
-
+		
 	  if (nextProps.data.is_searching){
 			
 		
@@ -86,6 +88,7 @@ class ShowDatabase extends Component {
 
 		} else {
 			// this.resetState();
+			
 		    this.makeHttpRequestWithPage(nextProps.data.current_page);
 
 		}
@@ -126,7 +129,11 @@ class ShowDatabase extends Component {
 		
 		this.makeHttpFilterRequestWithPage(1, condition);
 	}
-	notifyToParent = (page, isSearching, condition) => {
+	notifyToParent = (page, isSearching, condition, is_logged_out=false) => {
+		if (is_logged_out){
+			this.this.props.notifyCurrentPageAndCondition({is_logged_in: false});
+			return;
+		}
 		this.props.notifyCurrentPageAndCondition({
 			current_page: page,
 			is_searching: isSearching,
@@ -169,8 +176,15 @@ class ShowDatabase extends Component {
   	makeHttpFilterRequestWithPage = (pageNumber, condition) => {
 	    this.setState({is_loading: true});
 		
-		axios.post(GET_DB_FILTER + pageNumber, {
-			"condition" : condition
+		axios.post(GET_DB_FILTER + pageNumber, 
+			{
+				"condition" : condition
+			},
+			{
+				headers:
+						{
+							"Authorization": "JWT " + getToken()
+						}
 			}).then((res)=>{
 
 					this.notifyToParent(res.data.current_page, true, this.state.current_search_condition);
@@ -181,18 +195,30 @@ class ShowDatabase extends Component {
 				      per_page: res.data.per_page,
 				      current_page: res.data.current_page,
 				      is_searching: true,
-				      is_loading: false
+				      is_loading: false,
+				      is_error: false,
+				      is_not_found: false
 
 
 				    });
 		          },
 		            (error)=>{
-		              
-		              	if (error.response && error.response.status == 404){
- 							this.setState({is_not_found: true})
- 						} else {
-		              		this.setState({is_error: true});
- 						}
+		              	var newState = {is_loading: false}
+		              	if (error.response){
+		              		switch (error.response.status) {
+		              			case 404:
+ 									newState["is_not_found"] = true;
+		              				break;
+	              				case 401:
+	              					this.notifyToParent(null, null, null, true);
+	              					break;
+		              			default:
+		              				newState["is_error"] = true;
+		              				break;
+		              		}
+		              	}
+		              	
+ 						this.setState({...newState})
 
 
 		            }
@@ -202,7 +228,12 @@ class ShowDatabase extends Component {
   	makeHttpRequestWithPage = pageNumber => {
 	    this.setState({is_loading: true});
 
-		axios.get(GET_DB_API + pageNumber).then((res)=>{
+
+		axios.get(GET_DB_API + pageNumber, { headers:
+			{
+				"Authorization": "JWT " + getToken()
+			}
+		}).then((res)=>{
 		            
 					this.notifyToParent(res.data.current_page, false, this.state.current_search_condition);
 
@@ -211,19 +242,32 @@ class ShowDatabase extends Component {
 				      total: res.data.total,
 				      per_page: res.data.per_page,
 				      current_page: res.data.current_page,
-				      is_loading: false
+				      is_loading: false,
+				      is_error: false,
+				      is_not_found: false
 
 
 				    });
 		          },
 		            (error)=>{
-		              
-		              
- 						if (error.response && error.response.status == 404){
- 							this.setState({is_not_found: true})
- 						} else {
-		              		this.setState({is_error: true});
- 						}
+		            
+		              	var newState = {is_loading: false}
+		              	if (error.response){
+		              		switch (error.response.status) {
+		              			case 404:
+ 									newState["is_not_found"] = true;
+		              				break;
+	              				case 401:
+	              					
+	              					break;
+		              			default:
+		              				newState["is_error"] = true;
+		              				break;
+		              		}
+		              	}
+		              	
+ 						this.setState({...newState});
+
 
 		            }
 		          );
@@ -232,6 +276,7 @@ class ShowDatabase extends Component {
 	    
 	  }
 	render = ()=>{
+		
 		let activities;
 		if (this.state.is_error){
 			return (<h6>Có lỗi xảy ra, vui lòng thử lại sau</h6>)
@@ -288,18 +333,30 @@ class ShowDatabase extends Component {
 		}
 
 		return (
-			<Container className="main-container">
+			<div className="main-containers">
 
 				<Row className="search-pagination">
-					<Col xs={6} md={5}>
-						<Pagination className="pagination">{pages}</Pagination>
-						<div className="spinner-holder">{(this.state.is_loading) && <Spinner className="loading-spinner" animation="grow" variant="success" role="status"/>}</div>
+					<Col sm={12} md={5}>
+						<Row className="paging-spinner-wrapper">
+							<Col sm={2} md={2}>
+								<div className="spinner-holder">{(this.state.is_loading) && <Spinner className="loading-spinner" animation="grow" variant="success" role="status"/>}</div>
+
+							</Col>
+							<Col sm={7} md={12}>
+								<Pagination className="pagination">{pages}</Pagination>
+
+							</Col>
+
+							
+
+						</Row>
+						
 
 					</Col>
-					<Col xs={12} md={7}>
+					<Col sm={12} md={7}>
 						<Form.Group as={Row} className="search-box">
-						    <Form.Label className="input-search-box" column sm="auto"><b>Tìm theo:</b></Form.Label>
-						    <Col sm="10">
+						    <Form.Label className="input-search-box" column xs="1"><b>Tìm theo:</b></Form.Label>
+						    <Col className="col-inside-box" xs="10">
 						    	<Row>
 								    <Col className="input-search-box" sm="4">
 									    <Form.Control 
@@ -345,7 +402,7 @@ class ShowDatabase extends Component {
 						    	</Row>
 						    </Col>
 						    
-						    <Col  sm="auto">
+						    <Col className="col-inside-box" xs="1">
 						    	<Row>
 								    <IconContext.Provider value={{ className: "search-icon" }} >
 		                              
@@ -367,7 +424,7 @@ class ShowDatabase extends Component {
 					</Col>
 					
 				</Row>
-				<Table className="table-content" striped bordered hover>
+				<Table responsive="lg" className="table-content" striped bordered hover>
 					<thead>
 						<tr>
 							<th className="id-td">#</th>
@@ -392,7 +449,7 @@ class ShowDatabase extends Component {
 					
 				</Table>
 
-			</Container>
+			</div>
 
 
 		)

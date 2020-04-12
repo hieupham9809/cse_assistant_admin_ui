@@ -8,6 +8,8 @@ import './TextArea.css';
 import { IconContext } from "react-icons";
 import {FaPlusCircle} from "react-icons/fa";
 import { PREDICT_API,INSERT_API } from './constants';
+import {getToken} from '../utils/utils.js'
+
 import { Button, Modal, Alert } from 'react-bootstrap';
 import { Form, Row, Col } from 'react-bootstrap'
 
@@ -54,8 +56,8 @@ export default class TextAreaCustom extends Component {
         group_2: []
       },
       isShowConfirmDialog: false,
-      isShowSuccessBadge: false,
-      isShowErrorBadge: false,
+      isShowSuccessDialog: false,
+      isShowErrorDialog: false,
       isShowValidateError: false
     };
   }
@@ -500,6 +502,9 @@ export default class TextAreaCustom extends Component {
       this.setState({isShowConfirmDialog: false, isShowValidateError: false})
     }
   }
+  showSuccessDialog = (isShow) => {
+      this.setState({isShowSuccessDialog: isShow});
+    }
   submitHandle = ()=>{
     const text = this.state.text;
     var postObject = {
@@ -557,33 +562,39 @@ export default class TextAreaCustom extends Component {
 
       }
     }
-    postObject.time_work_place_mapping = [];
-    Object.keys(groupDict).map((key)=>{postObject.time_work_place_mapping.push(groupDict[key])});
+    postObject.time_works_place_address_mapping = [];
+    Object.keys(groupDict).map((key)=>{postObject.time_works_place_address_mapping.push(groupDict[key])});
 
     if (postObject.name_activity.length == 0){
       this.setState({
-        isShowSuccessBadge: false,
-        isShowErrorBadge: false,
+        isShowSuccessDialog: false,
+        isShowErrorDialog: false,
         isShowConfirmDialog: false,
         isShowValidateError: true})
       return ;
     }
     axios.post(INSERT_API,{
       activity: postObject
+    },
+    {
+      headers:
+            {
+              "Authorization": "JWT " + getToken()
+            }
     }).then((res)=>{
       
       this.setState({
         isShowConfirmDialog: false,
-        isShowSuccessBadge: true,
-        isShowErrorBadge: false
+        isShowSuccessDialog: true,
+        isShowErrorDialog: false
       })
     },
       (error)=>{
         
         this.setState({
           isShowConfirmDialog: false,
-          isShowSuccessBadge: false,
-          isShowErrorBadge: true
+          isShowSuccessDialog: false,
+          isShowErrorDialog: true
         })
 
       }
@@ -757,14 +768,29 @@ export default class TextAreaCustom extends Component {
               className="btn btn-default btn-form"
               onClick={()=>newLocal.showConfirmDialog(true)}
               >Tạo hoạt động</Button>
-              {this.state.isShowSuccessBadge && <Alert variant='success'>
-                Thêm thành công!
-              </Alert>}
-              {this.state.isShowErrorBadge && <Alert variant='danger'>
-                Có lỗi xảy ra!
-              </Alert>}
+
 
           </Form.Group>
+          <Modal show={this.state.isShowSuccessDialog}>
+                  
+            <Modal.Body className="success-dialog">Thêm thành công!</Modal.Body>
+            <Modal.Footer className="text-center">
+              
+              <Button variant="primary" onClick={()=>newLocal.showSuccessDialog(false)}>
+                Đồng ý
+              </Button>
+            </Modal.Footer>
+          </Modal>
+          <Modal show={this.state.isShowErrorDialog}>
+            
+            <Modal.Body className="error-dialog">Có lỗi xảy ra, vui lòng thử lại sau!</Modal.Body>
+            <Modal.Footer className="text-center">
+              
+              <Button variant="primary" onClick={()=>newLocal.showErrorDialog(false)}>
+                Đồng ý
+              </Button>
+            </Modal.Footer>
+          </Modal>
           <Modal show={this.state.isShowConfirmDialog} onHide={()=>newLocal.showConfirmDialog(false)}>
             <Modal.Header closeButton>
               <Modal.Title>Xác nhận thêm hoạt động</Modal.Title>

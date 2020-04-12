@@ -1,16 +1,20 @@
-.main-container {
+.main-containers {
 	width: 100%;
 	height: 100%;
-	margin: 15px;
-	padding: 0px;
+	margin: 0px;
+	padding: 15px;
+	
+	
 }
+
 td {
 	max-height: 200px;
 	padding: 5px !important;
+	min-width: 50px;
 	/*word-break: break-all;*/
 }
 .id-td{
-	width: 20px;
+	width: 10px;
 }
 th {
 	font-size: 15px;
@@ -20,8 +24,9 @@ th {
 .table-content {
 	font-size: 12px;
 	border-collapse:collapse;
-    table-layout:fixed;
+    
 }
+
 .td-wrap-text{
 	max-height: 100px;
 	max-width: 130px;
@@ -29,17 +34,35 @@ th {
 	text-overflow: ellipsis;
 	
 }
+
 .search-pagination{
 	display: flex;
 	align-items: center;
+	justify-content: center;
+	margin-right: 0px !important;
+	margin-left: 0px !important;
+}
+.search-pagination > .col-md-7.col-sm-12{
+	padding: 0px !important;
+}
+.search-pagination > .col-md-5.col-sm-6{
+	padding: 0px !important;
+}
+.search-pagination > .row {
+	
 }
 .search-box{
 	display: flex;
 	align-items: center;
-	margin-right: 0px;
-	
+	margin-right: 0px !important;
+	margin-left: 0px !important;
+	justify-content: center;
 	border-radius: 5px;
 	border: 1px solid #e6d9d9;
+}
+.search-box > .col-inside-box {
+	justify-content: center;
+	padding: 0px;
 }
 .input-search-box{
 	display: flex;
@@ -48,9 +71,18 @@ th {
 	font-size: 13px !important;
 	padding: 5px 2px 5px 0px;
 }
+.input-search-box > b {
+	text-align: center;
+}
+.col-inside-box > .row{
+	margin: 0px !important;
+	justify-content: center;
+}
 .form-control {
 	font-size: 14px !important;
 	margin: 0px;
+	padding: 5px;
+
 }
 .search-icon{
 	display: inline-block;
@@ -58,6 +90,7 @@ th {
 	height: 30px;
 	margin-right: 1px;
 	margin-top: 5px;
+
 	margin-bottom: 5px;
 	border-radius: 5px;
 	background-color: #d1deea;
@@ -75,4 +108,7 @@ th {
 }
 .pagination{
 	margin-bottom: 5px;
+}
+.paging-spinner-wrapper {
+	min-height: 100px;
 }
