@@ -387,7 +387,7 @@ class ShowDatabase extends Component {
 									    	onChange={(event)=>{this.handleChangeSearchCategory(event, 1)}}>
 									      <option value="none">Chọn</option>
 									      <option value="name_activity">Tên hoạt động</option>
-									      <option value="address">Địa điểm</option>
+									      <option value="address">Địa chỉ</option>
 									      
 									    </Form.Control>
 								    </Col>
