@@ -153,6 +153,13 @@ class App extends Component{
 
             <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" className="top-nav-bar">
                 <Navbar.Brand href="#">Moderator's Panel</Navbar.Brand>
+                <Nav.Link >
+                    <IconContext.Provider value={{ className: "back-icon" }}>
+                      
+                        <TiArrowBack onClick={() => this.handleReturnDatabase()}/>
+                      
+                    </IconContext.Provider>
+                </Nav.Link>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="mr-auto">
@@ -175,16 +182,11 @@ class App extends Component{
                                     className="btn-login" 
                                     variant="outline-light">Đăng nhập</Button>}
                         </Form>
-                        <Nav.Link >
-                            <IconContext.Provider value={{ className: "back-icon" }}>
-                              
-                                <TiArrowBack onClick={() => this.handleReturnDatabase()}/>
-                              
-                            </IconContext.Provider>
-                        </Nav.Link>
+                        
                         
                     </Nav>
                 </Navbar.Collapse>
+
             </Navbar>
 
             {this.state.show_database.is_show && <ShowDatabase 

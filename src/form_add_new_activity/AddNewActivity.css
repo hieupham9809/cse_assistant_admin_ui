@@ -4,6 +4,11 @@
   border: 1px solid #ccc;
   padding: 10px; 
   margin: 2px;
+  color: black
+}
+.form-control::placeholder {
+	color: grey;
+	opacity: 0.7;
 }
 
 .control-error {
@@ -93,4 +98,37 @@
 }
 .main-detail-display{
 	margin: 10px;
+}
+.time-block-1 {
+	display: inline-block;
+
+}
+.time-block-2 {
+	display: inline-block;
+	margin-left: 5px;
+}
+.col-associate{
+		margin-top: 10px !important;
+}
+@media screen and (min-width: 600px) {
+	
+	.col-associate{
+		margin-top: 0px !important;
+	}
+	.time-block-2 {
+		margin-left: 0px;
+	}
+	
+}
+
+@media screen and (min-width: 1200px){
+	.time-block-2 {
+		margin-left: 20px;
+	}
+}
+
+@media screen and (min-width: 1300px){
+	.time-block-2 {
+		margin-left: 50px;
+	}
 }

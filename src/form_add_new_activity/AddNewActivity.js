@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './AddNewActivity.css';
 import validate from './validator.js';
-import { Button, Modal, Alert } from 'react-bootstrap';
+import { Button, Modal, Alert, Spinner } from 'react-bootstrap';
 import { Form, Row, Col } from 'react-bootstrap'
 import { INSERT_API } from '../dragging_form_add_new_activity/constants';
 import {getToken} from '../utils/utils.js'
@@ -11,6 +11,9 @@ import TextArea from './TextArea';
 import { IconContext } from "react-icons";
 import {FaPlusCircle} from "react-icons/fa";
 import {FaMinusCircle} from "react-icons/fa";
+import DatePicker from "react-datepicker";
+ 
+import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
 
 class FormComponent extends Component {
@@ -25,7 +28,9 @@ class FormComponent extends Component {
                   validationRules: {
                     maxLength: 200
                   },
-                  placeholder: '08h30 sáng 26/03/2020, ...'
+                  placeholder: '08h30 sáng 26/03/2020, ...',
+                  startDate : new Date(),
+                  endDate : new Date()
                 },
                 works: {
                   value: '',
@@ -57,6 +62,7 @@ class FormComponent extends Component {
               }
 		this.state = {
           formIsValid : false,    
+          is_loading: false,
 	      	formGeneralControls: {
 	          	name_activity: {
 		            value: '',
@@ -130,7 +136,9 @@ class FormComponent extends Component {
                 validationRules: {
                     maxLength: 500
                 },
-                placeholder: '08h30 sáng 26/03/2020, ...'
+                placeholder: '08h30 sáng 26/03/2020, ...',
+                startDate : new Date(),
+                endDate : new Date()
               },
               name_place: {
                 value: '',
@@ -243,6 +251,68 @@ class FormComponent extends Component {
       })
 
     }
+  }
+  setDateCustom = (date, isStart=true, associateIdx=null) => {
+    // console.log(typeof(date))
+    // console.log(date)
+    if (associateIdx == null){
+      const updatedControls = {
+        ...this.state.formGeneralControls
+      };
+      const updatedFormElement = {
+        ...updatedControls['time']
+      };
+
+      if (isStart){
+        updatedFormElement.startDate = date
+      } else {
+        updatedFormElement.endDate = date
+      }
+      updatedControls['time'] = updatedFormElement;
+      // console.log("updated datetime: ")
+      // console.log(updatedFormElement)
+      this.setState({
+        formGeneralControls: updatedControls
+      }); 
+
+    } else {
+
+      console.log("idx: " + associateIdx)
+      const updatedAssociatedControls = {
+        ...this.state.associateControls
+      };
+
+      const updatedAssociatedValues = updatedAssociatedControls.associateValues;
+      
+      if (associateIdx < updatedAssociatedValues.length){
+        const updatedAssociatedElement = {
+          ...updatedAssociatedValues[associateIdx]['time']
+        }
+        
+        if (isStart){
+          updatedAssociatedElement.startDate = date
+        } else {
+          updatedAssociatedElement.endDate = date
+        }
+
+        updatedAssociatedValues[associateIdx]['time'] = updatedAssociatedElement;
+        // console.log(updatedAssociatedElement)
+        updatedAssociatedControls.associateValues = updatedAssociatedValues;
+        // let formIsValid = true;
+        // for (let associateElementIdx in updatedAssociatedValues){
+        //   for (let fieldElement in updatedAssociatedValues[associateElementIdx]){
+        //     formIsValid = updatedAssociatedValues[associateElementIdx][fieldElement].valid && formIsValid;
+        //   }
+
+        // }
+        
+        this.setState({
+          associateControls: updatedAssociatedControls
+        })
+
+      }
+    }
+    
   }
   // changeAssociateValue = event => {
   //   var idx = event.target.getAttribute('data-key');
@@ -391,7 +461,11 @@ class FormComponent extends Component {
       }
 
       for (let field in formGeneralControls){
-        body_request_object.activity[field] = this.convertRawValueToArray(formGeneralControls[field].value);
+        if (field == "time"){
+          body_request_object.activity[field] = [parseInt((formGeneralControls[field].startDate.getTime() / 1000).toFixed(0)), parseInt((formGeneralControls[field].endDate.getTime() / 1000).toFixed(0))]
+        } else {
+          body_request_object.activity[field] = this.convertRawValueToArray(formGeneralControls[field].value);
+        }
       }
       body_request_object.activity["time_works_place_address_mapping"] = listAssociateValues;
       console.log(body_request_object);
@@ -407,7 +481,8 @@ class FormComponent extends Component {
             this.setState({
               isShowConfirmDialog: false,
               isShowSuccessDialog: true,
-              isShowErrorDialog: false
+              isShowErrorDialog: false,
+              is_loading: false
             })
           },
             (error)=>{
@@ -415,11 +490,14 @@ class FormComponent extends Component {
               this.setState({
                 isShowConfirmDialog: false,
                 isShowSuccessDialog: false,
-                isShowErrorDialog: true
+                isShowErrorDialog: true,
+                is_loading: false
               })
 
             }
           );
+      this.setState({is_loading: true});
+
 
   	}
     convertRawValueToArray = (rawValue)=> {
@@ -444,7 +522,8 @@ class FormComponent extends Component {
 
         if (isValid){
           var validElement = {}
-          validElement.time = this.convertRawValueToArray(value.time.value);
+          // validElement.time = this.convertRawValueToArray(value.time.value);
+          validElement.time = [parseInt((value.time.startDate.getTime() / 1000).toFixed(0)), parseInt((value.time.endDate.getTime() / 1000).toFixed(0))]
           validElement.works = this.convertRawValueToArray(value.works.value);
           validElement.name_place = this.convertRawValueToArray(value.name_place.value);
           validElement.address = this.convertRawValueToArray(value.address.value);
@@ -459,6 +538,7 @@ class FormComponent extends Component {
 	render = () => {
         var changeAssociateValue = this.changeAssociateValue;
         var deleteRowHandle = this.deleteRowHandle;
+        var setDateCustom = this.setDateCustom;
         var newLocal = this;
         var isDisableForm = this.isDisableForm();
 
@@ -503,26 +583,55 @@ class FormComponent extends Component {
                   </Form.Group>
                 </Col>
               </Row>
-              <Form.Group className="form-group-custom">
-                  <Form.Label><b>Thời gian</b></Form.Label>
-                  <TextArea name="time" 
-                             placeholder={this.state.formGeneralControls.time.placeholder}
-                             value={this.state.formGeneralControls.time.value}
-                             onChange={this.changeHandler}
-                             touched={this.state.formGeneralControls.time.touched ? 1 : 0}
-                             valid={this.state.formGeneralControls.time.valid ? 1 : 0}/>
+              <Row className="row-custom">
+                <Col className="column1" sm="4">
+                  <Form.Group className="form-group-custom">
+                    <Form.Label style={{display: "block"}}><b>Thời gian</b></Form.Label>
+                    <div className="time-block-1">
+                      <div>Bắt đầu:</div>
+                      <DatePicker
+                      selected={this.state.formGeneralControls.time.startDate}
+                      onChange={(date) => setDateCustom(date)}
+                      showTimeSelect
+                      timeFormat="HH:mm"
+                      timeIntervals={15}
+                      timeCaption="time"
+                      dateFormat="MMMM d, yyyy h:mm aa"
+                      />
+                    </div>
+                    <div className="time-block-2">
+                      <div>Kết thúc:</div>
+                      <DatePicker
+                      selected={this.state.formGeneralControls.time.endDate}
+                      onChange={(date) => setDateCustom(date, false)}
+                      showTimeSelect
+                      timeFormat="HH:mm"
+                      timeIntervals={15}
+                      timeCaption="time"
+                      dateFormat="MMMM d, yyyy h:mm aa"
+                      />
+                    </div>
+                  </Form.Group>
+
+                </Col>
+
+                <Col className="column2" sm="8">
+                  <Form.Group className="form-group-custom">
+                    <Form.Label><b>Tên địa điểm</b></Form.Label>
+                    <TextArea name="name_place" 
+                               placeholder={this.state.formGeneralControls.name_place.placeholder}
+                               value={this.state.formGeneralControls.name_place.value}
+                               onChange={this.changeHandler}
+                               touched={this.state.formGeneralControls.name_place.touched ? 1 : 0}
+                               valid={this.state.formGeneralControls.name_place.valid ? 1 : 0}/>
           
-              </Form.Group>
-              <Form.Group className="form-group-custom">
-                  <Form.Label><b>Tên địa điểm</b></Form.Label>
-                  <TextArea name="name_place" 
-                             placeholder={this.state.formGeneralControls.name_place.placeholder}
-                             value={this.state.formGeneralControls.name_place.value}
-                             onChange={this.changeHandler}
-                             touched={this.state.formGeneralControls.name_place.touched ? 1 : 0}
-                             valid={this.state.formGeneralControls.name_place.valid ? 1 : 0}/>
-          
-              </Form.Group>
+                  </Form.Group>
+
+                </Col>
+
+              </Row>
+              
+              
               <Form.Group className="form-group-custom">
                   <Form.Label><b>Địa chỉ</b></Form.Label>
                   <TextArea name="address" 
@@ -585,6 +694,7 @@ class FormComponent extends Component {
                              valid={this.state.formGeneralControls.register.valid ? 1 : 0}/>
           
               </Form.Group>
+              <br/>
               <h6><b>II. Thông tin chi tiết dành cho hoạt động có nhiều thông tin phức tạp</b> <i>(mỗi trường thông tin không quá 200 ký tự)</i></h6>
 
               <Form.Group className="form-group-custom associate-values-group">
@@ -594,14 +704,38 @@ class FormComponent extends Component {
                     return (<Row key={"row"+idx} className="row-custom row-associate">
                       <Col className="col-associate" sm="3">
                         <div className="associate-input">
-                          <Form.Label>Thời gian</Form.Label>
-                          <TextArea data-key={idx}
-                                    name="time"
-                                    value={value.time.value}
-                                    placeholder={value.time.placeholder}
-                                    onChange={changeAssociateValue}
-                                    touched={value.time.touched ? 1 : 0}
-                                    valid={value.time.valid ? 1 : 0}/>
+                          
+                          <div>
+                            <div>Bắt đầu:</div>
+                            <DatePicker
+                            selected={value.time.startDate}
+                            onChange={(date) => setDateCustom(date, true, idx)}
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            timeIntervals={15}
+                            timeCaption="time"
+                            dateFormat="MMMM d, yyyy h:mm aa"
+                            />
+                          </div>
+                          <div>
+                            <div>Kết thúc:</div>
+                            <DatePicker
+                            selected={value.time.endDate}
+                            onChange={(date) => setDateCustom(date, false, idx)}
+                            showTimeSelect
+                            timeFormat="HH:mm"
+                            timeIntervals={15}
+                            timeCaption="time"
+                            dateFormat="MMMM d, yyyy h:mm aa"
+                            />
+                          </div>
+                          {/*<TextArea data-key={idx}
+                                                              name="time"
+                                                              value={value.time.value}
+                                                              placeholder={value.time.placeholder}
+                                                              onChange={changeAssociateValue}
+                                                              touched={value.time.touched ? 1 : 0}
+                                                              valid={value.time.valid ? 1 : 0}/>*/}
 
   
                         </div>
@@ -667,10 +801,13 @@ class FormComponent extends Component {
                   <FaPlusCircle onClick={this.addMoreRowHandle}/>
                 </IconContext.Provider>
               </Form.Group>
+                <br/>
+
                 <Button onClick={()=>newLocal.showConfirmDialog(true)}
                         disabled={isDisableForm}
                         className="submit-btn"
                 > Thêm hoạt động </Button>
+
                 {isDisableForm && <Alert className="alert-validate" variant="danger">Dữ liệu nhập không hợp lệ, vui lòng kiểm tra lại!</Alert>}
                 <Modal show={this.state.isShowSuccessDialog}>
                   
@@ -696,14 +833,19 @@ class FormComponent extends Component {
                   <Modal.Header closeButton>
                     <Modal.Title>Xác nhận thêm hoạt động</Modal.Title>
                   </Modal.Header>
-                  <Modal.Body>Bạn có chắc tạo mới hoạt động này?</Modal.Body>
+                  <Modal.Body>Bạn có chắc tạo mới hoạt động này?
+                    <div className="spinner-holder">{(this.state.is_loading) && <Spinner className="loading-spinner" animation="grow" variant="success" role="status"/>}</div>
+                    
+                  </Modal.Body>
                   <Modal.Footer>
+
                     <Button variant="secondary" onClick={()=>newLocal.showConfirmDialog(false)}>
                       Hủy
                     </Button>
-                    <Button variant="primary" onClick={this.formSubmitHandler}>
+                    <Button variant="primary" onClick={this.formSubmitHandler} disabled={this.state.is_loading}>
                       Tạo mới
                     </Button>
+
                   </Modal.Footer>
                 </Modal>
             </Form>   

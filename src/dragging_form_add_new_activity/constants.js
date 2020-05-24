@@ -4,6 +4,7 @@
 export const PREDICT_API = ['https://server-ner-prediction-second.herokuapp.com/api/tagging/v1'];
 export const LOGIN_API = ['https://admin-cse-assistant.herokuapp.com/auth']
 export const INSERT_API = ['https://admin-cse-assistant.herokuapp.com/api/server-cse-assistant-admin/activities']
+export const INSERT_NER_API = ['https://admin-cse-assistant.herokuapp.com/api/server-cse-assistant-admin/activities-ner']
 export const GET_DB_API = ['https://admin-cse-assistant.herokuapp.com/api/server-cse-assistant-admin/activities/page/']
 export const GET_DB_FILTER = ['https://admin-cse-assistant.herokuapp.com/api/server-cse-assistant-admin/activities/filter/page/']
 export const GET_SINGLE_API = ['https://admin-cse-assistant.herokuapp.com/api/server-cse-assistant-admin/activities/']

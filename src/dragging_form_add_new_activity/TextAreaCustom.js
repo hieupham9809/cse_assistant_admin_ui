@@ -7,10 +7,10 @@ import '../form_add_new_activity/AddNewActivity.css';
 import './TextArea.css';
 import { IconContext } from "react-icons";
 import {FaPlusCircle} from "react-icons/fa";
-import { PREDICT_API,INSERT_API } from './constants';
+import { PREDICT_API,INSERT_NER_API } from './constants';
 import {getToken} from '../utils/utils.js'
 
-import { Button, Modal, Alert } from 'react-bootstrap';
+import { Button, Modal, Alert, Spinner} from 'react-bootstrap';
 import { Form, Row, Col } from 'react-bootstrap'
 
 // import LabelMap from './LabelMap';
@@ -210,14 +210,14 @@ export default class TextAreaCustom extends Component {
     corpusPointer+=listToken[listToken.length-1].length
     if (listLabel[listToken.length-1].includes('O'))
         {
-            console.log(`end_pointer ${corpusPointer+1} of label normal`)
+            // console.log(`end_pointer ${corpusPointer+1} of label normal`)
             tags[prev.toString()]['end']=corpusPointer+1
             tags[prev.toString()]['type']='normal'
             // console.log(`previous_pointer ${prev} of label normal`)
         }
     else
         {
-            console.log(`end_pointer ${corpusPointer+1} of label ${listLabel[listToken.length-1].slice(2,listLabel[listToken.length-1].length)}`)
+            // console.log(`end_pointer ${corpusPointer+1} of label ${listLabel[listToken.length-1].slice(2,listLabel[listToken.length-1].length)}`)
             tags[prev.toString()]['end']=corpusPointer+1
             tags[prev.toString()]['type']=listLabel[listToken.length-1].slice(2,listLabel[listToken.length-1].length)
             // console.log(`previous_pointer ${prev} of label ${listLabel[index].slice(2,listLabel[index].length)}`)
@@ -368,6 +368,7 @@ export default class TextAreaCustom extends Component {
 
   predict = () => {
     // console.log("abc")
+    
     let {
       text, runs
     } = this.state;
@@ -399,12 +400,12 @@ export default class TextAreaCustom extends Component {
     }).then((res) => {
       // console.log(res)
       listLabel=res.data.results[0].tags
-      console.log("---------------------------------Before fix label")
-      // console.log(listLabel)
-      for (let i=0;i<listLabel.length;i++)
-      {
-        console.log(`Token: ${listToken[i]} Label: ${listLabel[i]}`)
-      }
+      // console.log("---------------------------------Before fix label")
+      // // console.log(listLabel)
+      // for (let i=0;i<listLabel.length;i++)
+      // {
+      //   console.log(`Token: ${listToken[i]} Label: ${listLabel[i]}`)
+      // }
       for (let i=0;i<listLabel.length-1;i++)
       {
         if (i==0&&listLabel[i].includes('I'))
@@ -431,10 +432,10 @@ export default class TextAreaCustom extends Component {
 
       }
       // console.log("------------------------after fix label")
-      for (let i=0;i<listLabel.length;i++)
-      {
-        console.log(`Token: ${listToken[i]} Label: ${listLabel[i]}`)
-      }
+      // for (let i=0;i<listLabel.length;i++)
+      // {
+      //   console.log(`Token: ${listToken[i]} Label: ${listLabel[i]}`)
+      // }
 
       /** Replace tag inside original list label to ignore district, ward, street, city */
       listLabel = listLabel.map((label)=>{
@@ -449,7 +450,7 @@ export default class TextAreaCustom extends Component {
       // console.log(data[idx].content)
       // data[idx].message = newMessage
       runs = newTags
-      this.setState({ text:newMessage, runs:runs });
+      this.setState({ text:newMessage, runs:runs, isPredicting: false });
 
     }, (error)=> {
       
@@ -459,15 +460,19 @@ export default class TextAreaCustom extends Component {
       });
       
     });
+    this.setState({
+        isPredicting: true
+        
+      });
 
-    }
+  }
   extractToTag = () => {
     var runs = this.state.runs;
     var associateRuns = Object.keys(runs).filter((start)=>{return (["time", "works", "address", "name_place"].includes(runs[start].type))}).map((start)=>{return {...runs[start], start: parseInt(start), category:"original"}})
     this.setState({listTags : associateRuns}) 
   }
   onDragStart(event, start){
-    console.log('drag start: ', start);
+    // console.log('drag start: ', start);
     event.dataTransfer.setData("start", start);
     // console.log('get from event: ', event.dataTransfer.getData("id"));
   }
@@ -475,7 +480,7 @@ export default class TextAreaCustom extends Component {
     event.preventDefault();
   }
   onDrop(event, category){
-    console.log("dropped");
+    // console.log("dropped");
     let start = event.dataTransfer.getData("start")
     let listTags = this.state.listTags.filter((tag)=>{
       if (tag.start == start){
@@ -573,7 +578,7 @@ export default class TextAreaCustom extends Component {
         isShowValidateError: true})
       return ;
     }
-    axios.post(INSERT_API,{
+    axios.post(INSERT_NER_API,{
       activity: postObject
     },
     {
@@ -663,6 +668,7 @@ export default class TextAreaCustom extends Component {
             >
               Tự động phân tích
             </Button>
+            <span className="spinner-holder">{(this.state.isPredicting) && <Spinner className="loading-spinner" animation="grow" variant="success" role="status"/>}</span>
           </Form.Group>
           <Form.Group 
                   className="text-container form-group-custom"

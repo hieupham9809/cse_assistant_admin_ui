@@ -63,7 +63,10 @@
 	border: 1px solid grey;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
-
+.spinner-holder{
+	width: 40px;
+	height: 40px;
+}
 h8, h10 {
 	color: grey;
 }

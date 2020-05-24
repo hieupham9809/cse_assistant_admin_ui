@@ -290,7 +290,11 @@ class ShowDatabase extends Component {
 					<td className="id-td"></td>
 					<td title={activity.name_activity}><div className="td-wrap-text"><a href="#" onClick={(event)=>{this.handleClickActivity(event, activity._id)}} >{activity.name_activity}</a></div></td>
 					<td title={activity.type_activity}><div className="td-wrap-text">{activity.type_activity}</div></td>
-					<td title={activity.time}><div className="td-wrap-text">{activity.time}</div></td>
+					<td title={activity.time}><div className="td-wrap-text">
+						{activity.time.length > 0 && typeof(activity.time[0]) == "string" && activity.time}
+						{activity.time.length > 0 && !(typeof(activity.time[0]) == "string") && Array.isArray(activity.time) && [(new Date(activity.time[0] * 1000)).toLocaleString(),(new Date(activity.time[0] * 1000)).toLocaleString()].join(", ")}
+
+					</div></td>
 					<td title={activity.holder}><div className="td-wrap-text">{activity.holder}</div></td>
 					<td title={activity.contact}><div className="td-wrap-text">{activity.contact}</div></td>
 					<td title={activity.reward}><div className="td-wrap-text">{activity.reward}</div></td>
@@ -342,7 +346,7 @@ class ShowDatabase extends Component {
 								<div className="spinner-holder">{(this.state.is_loading) && <Spinner className="loading-spinner" animation="grow" variant="success" role="status"/>}</div>
 
 							</Col>
-							<Col sm={7} md={12}>
+							<Col sm={7} md={12} style={{padding: "5px"}}>
 								<Pagination className="pagination">{pages}</Pagination>
 
 							</Col>
