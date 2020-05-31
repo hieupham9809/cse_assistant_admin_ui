@@ -369,7 +369,11 @@ class ShowDatabase extends Component {
 									    	onChange={(event)=>{this.handleChangeSearchCategory(event, 0)}}>
 									      <option value="none">Chọn</option>
 									      <option value="name_activity">Tên hoạt động</option>
-									      <option value="address">Địa điểm</option>
+									      <option value="type_activity">Loại hoạt động</option>
+									      <option value="name_place">Tên địa điểm</option>
+									      <option value="address">Địa chỉ</option>
+									      <option value="holder">Ban tổ chức</option>
+
 									      
 									      
 									    </Form.Control>
@@ -391,7 +395,10 @@ class ShowDatabase extends Component {
 									    	onChange={(event)=>{this.handleChangeSearchCategory(event, 1)}}>
 									      <option value="none">Chọn</option>
 									      <option value="name_activity">Tên hoạt động</option>
+									      <option value="type_activity">Loại hoạt động</option>
+									      <option value="name_place">Tên địa điểm</option>
 									      <option value="address">Địa chỉ</option>
+									      <option value="holder">Ban tổ chức</option>
 									      
 									    </Form.Control>
 								    </Col>
