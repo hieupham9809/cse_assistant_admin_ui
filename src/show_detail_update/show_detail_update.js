@@ -208,17 +208,17 @@ class DetailActivity extends Component {
 					if (data !== 'activity not found'){
 			            const updateFormGeneralControls = {...this.state.formGeneralControls};
 			            
-			            updateFormGeneralControls.name_activity.value = data.name_activity.join(", ");
-			            updateFormGeneralControls.type_activity.value = data.type_activity.join(", ");
-			            updateFormGeneralControls.holder.value = data.holder.join(", ");
-			            updateFormGeneralControls.contact.value = data.contact.join(", ");
-			            updateFormGeneralControls.reward.value = data.reward.join(", ");
-			            updateFormGeneralControls.register.value = data.register.join(", ");
-			            updateFormGeneralControls.joiner.value = data.joiner.join(", ");
-			            updateFormGeneralControls.time.value = data.time.join(", ");
-			            updateFormGeneralControls.name_place.value = data.name_place.join(", ");
-			            updateFormGeneralControls.address.value = data.address.join(", ");
-			            updateFormGeneralControls.works.value = data.works.join(", ");
+			            updateFormGeneralControls.name_activity.value = data.name_activity.join("; ");
+			            updateFormGeneralControls.type_activity.value = data.type_activity.join("; ");
+			            updateFormGeneralControls.holder.value = data.holder.join("; ");
+			            updateFormGeneralControls.contact.value = data.contact.join("; ");
+			            updateFormGeneralControls.reward.value = data.reward.join("; ");
+			            updateFormGeneralControls.register.value = data.register.join("; ");
+			            updateFormGeneralControls.joiner.value = data.joiner.join("; ");
+			            updateFormGeneralControls.time.value = data.time.join("; ");
+			            updateFormGeneralControls.name_place.value = data.name_place.join("; ");
+			            updateFormGeneralControls.address.value = data.address.join("; ");
+			            updateFormGeneralControls.works.value = data.works.join("; ");
 
                   if (data.time.length > 0 && typeof(data.time[0]) == "number"){
                     updateFormGeneralControls.time.startDate = new Date(data.time[0] * 1000)
@@ -273,10 +273,10 @@ class DetailActivity extends Component {
 				              };
 			            	
 
-			            	associateValue.time.value = associateRawValues[i].time.join(", ");
-			            	associateValue.works.value = associateRawValues[i].works.join(", ");
-			            	associateValue.address.value = associateRawValues[i].address.join(", ");
-			            	associateValue.name_place.value = associateRawValues[i].name_place.join(", ");
+			            	associateValue.time.value = associateRawValues[i].time.join("; ");
+			            	associateValue.works.value = associateRawValues[i].works.join("; ");
+			            	associateValue.address.value = associateRawValues[i].address.join("; ");
+			            	associateValue.name_place.value = associateRawValues[i].name_place.join("; ");
 			            	associateValues.push(associateValue);
 
                     if (associateRawValues[i].time.length > 0 && typeof(associateRawValues[i].time[0]) == "number"){
