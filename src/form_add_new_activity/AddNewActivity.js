@@ -503,7 +503,7 @@ class FormComponent extends Component {
     convertRawValueToArray = (rawValue)=> {
       var trimmedValue = rawValue.trim();
       if (trimmedValue !== ''){
-        return trimmedValue.split(',').map((elememt)=>{return elememt.trim()});
+        return trimmedValue.split(';').map((elememt)=>{return elememt.trim()});
       }
       return [];
 
@@ -544,7 +544,7 @@ class FormComponent extends Component {
 
       	return (
 	        <Form className="main-detail-display">
-            <h6><i>* Lưu ý nếu có nhiều giá trị thì nhập các giá trị cách nhau bởi dấu phẩy</i></h6>
+            <h6><i>* Lưu ý nếu có nhiều giá trị thì nhập các giá trị cách nhau bởi dấu chấm phẩy (;)</i></h6>
             <h6><b>I. Thông tin chung của hoạt động</b> <i>(mỗi trường thông tin không quá 500 ký tự)</i></h6>
 
               <Form.Group className="form-group-custom">
